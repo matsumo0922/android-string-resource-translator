@@ -10,19 +10,25 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.int
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 import java.io.File
+import kotlin.system.exitProcess
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class Translator: CliktCommand() {
     private val originalLanguage by option(help = "Language tag for source resources.").default("")
     private val targetLanguages by option(help = "Language tags for target resources.").required()
     private val baseDir by option(help = "Directory to generate base resources").required()
+
     private val apiKey by option(help = "OpenAI API Key").required()
     private val model by option(help = "OpenAI Model ID").default("o3-mini")
+
+    private val timeout by option(help = "Timeout for OpenAI API (min)").int().default(3)
 
     private val formatter = Json {
         ignoreUnknownKeys = true
@@ -40,7 +46,7 @@ class Translator: CliktCommand() {
 
         val client = OpenAI(
             token = apiKey,
-            timeout = Timeout(60.seconds, 60.seconds, 60.seconds),
+            timeout = Timeout(timeout.minutes, timeout.minutes, timeout.minutes),
             logging = LoggingConfig(LogLevel.None),
         )
 
@@ -64,6 +70,7 @@ class Translator: CliktCommand() {
         }
 
         println("Completed.")
+        exitProcess(0)
     }
 
     private fun loadFile(language: String, requireExist: Boolean = false): List<Content> {

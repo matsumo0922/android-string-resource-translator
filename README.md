@@ -1,0 +1,1 @@
+# Android String Resource Translator
