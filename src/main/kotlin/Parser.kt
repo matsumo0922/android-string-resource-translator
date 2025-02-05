@@ -11,33 +11,7 @@ sealed interface Content {
         val name: String,
         val value: String,
         val isTranslatable: Boolean = true,
-    ) : Content {
-        companion object {
-            val schema = """
-            {
-              []"type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "Unique identifier for the text resource"
-                  },
-                  "value": {
-                    "type": "string",
-                    "description": "The translated text value"
-                  },
-                  "isTranslatable": {
-                    "type": "boolean",
-                    "description": "Indicates if the text is translatable"
-                  }
-                },
-                "required": ["name", "value", "isTranslatable"]
-              }
-            }
-            """.trimIndent()
-        }
-    }
+    ) : Content
 
     @Serializable
     data object Whitespace : Content

@@ -22,6 +22,7 @@ class Translator: CliktCommand() {
     private val targetLanguages by option(help = "Language tags for target resources.").required()
     private val baseDir by option(help = "Directory to generate base resources").required()
     private val apiKey by option(help = "OpenAI API Key").required()
+    private val model by option(help = "OpenAI Model ID").default("o3-mini")
 
     private val formatter = Json {
         ignoreUnknownKeys = true
@@ -100,22 +101,22 @@ class Translator: CliktCommand() {
         val currentJson = formatter.encodeToString(ListSerializer(Content.StringResource.serializer()), current)
 
         val translatePrompt = """
-        You are an API that translates JSON to $targetLanguage.
-        All responses must be in JSON.
-    """.trimIndent()
+            You are an API that translates JSON to $targetLanguage.
+            All responses must be in JSON.
+        """.trimIndent()
 
         val userPrompt = """
-        Source JSON:
-        ```
-        $originalJson
-        ```
+            Source JSON:
+            ```
+            $originalJson
+            ```
 
-        Also, place the JSON you have previously translated for reference only.
-        Use your previous translation as is, unless there are significant differences from the original.
-        ```
-        $currentJson
-        ```
-    """.trimIndent()
+            Also, place the JSON you have previously translated for reference only.
+            Use your previous translation as is, unless there are significant differences from the original.
+            ```
+            $currentJson
+            ```
+        """.trimIndent()
 
         val params = Parameters.buildJsonObject {
             put("type", "object")
@@ -154,7 +155,7 @@ class Translator: CliktCommand() {
         }
 
         val request = ChatCompletionRequest(
-            model = ModelId("o3-mini"),
+            model = ModelId(model),
             messages = listOf(
                 ChatMessage.System(translatePrompt),
                 ChatMessage.User(userPrompt),
